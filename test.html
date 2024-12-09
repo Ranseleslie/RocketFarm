@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clark County GeoJSON Layer with Legend</title>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.27/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.27/"></script>
+  <style>
+    html, body, #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="viewDiv"></div>
+
+  <script>
+    require([
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/layers/GeoJSONLayer",
+      "esri/widgets/BasemapGallery",
+      "esri/widgets/Expand",
+      "esri/widgets/Search",
+      "esri/widgets/Bookmarks",
+      "esri/widgets/Legend",
+      "esri/geometry/Extent"
+    ], function(Map, MapView, GeoJSONLayer, BasemapGallery, Expand, Search, Bookmarks, Legend, Extent) {
+
+      // Initialize the map
+      var map = new Map({
+        basemap: "streets"
+      });
+
+      // Initialize the view
+      var view = new MapView({
+        container: "viewDiv",
+        map: map,
+        center: [-88.9548, 39.8403],
+        zoom: 8
+      });
+
+      // Define the Clark County layer with a unique-value renderer based on the STATUS field
+      var clarkLayer = new GeoJSONLayer({
+        url: "https://serv-gis.com/Parcel.geojson",
+        outFields: ["*"],
+        renderer: {
+          type: "unique-value",
+          field: "STATUS",
+          uniqueValueInfos: [
+            {
+              value: "ON HOLD",
+              symbol: {
+                type: "simple-fill",
+                color: [255, 128, 0, 0.6], // orange
+                outline: {
+                  color: "black",
+                  width: 0.5
+                }
+              },
+              label: "On Hold"
+            },
+            {
+              value: "NOT INTERESTED",
+              symbol: {
+                type: "simple-fill",
+                color: [128, 64, 191, 0.6], // purple
+                outline: {
+                  color: "black",
+                  width: 0.5
+                }
+              },
+              label: "Not Interested"
+            },
+            {
+              value: "NOT CONTACTED",
+              symbol: {
+                type: "simple-fill",
+                color: [128, 128, 128, 0.6], // grey
+                outline: {
+                  color: "black",
+                  width: 0.5
+                }
+              },
+              label: "Not Contacted"
+            },
+            {
+              value: "CONTACTED",
+              symbol: {
+                type: "simple-fill",
+                color: [102, 189, 99, 0.6], // green
+                outline: {
+                  color: "black",
+                  width: 0.5
+                }
+              },
+              label: "Contacted"
+            },
+            {
+              value: "INTERESTED",
+              symbol: {
+                type: "simple-fill",
+                color: [0, 0, 255, 0.6], // blue
+                outline: {
+                  color: "black",
+                  width: 0.5
+                }
+              },
+              label: "Interested"
+            },
+            {
+              value: "COMPETITOR LEASE",
+              symbol: {
+                type: "simple-fill",
+                color: [235, 56, 20, 0.6], // red
+                outline: {
+                  color: "black",
+                  width: 0.5
+                }
+              },
+              label: "Competitor Lease"
+            },
+            {
+              value: "ATTEMPTED",
+              symbol: {
+                type: "simple-fill",
+                color: [48, 145, 156, 0.6], // teal
+                outline: {
+                  color: "black",
+                  width: 0.5
+                }
+              },
+              label: "Attempted"
+            }
+          ]
+        }
+      });
+
+      // Add the Clark County layer to the map
+      map.add(clarkLayer);
+
+      // Initialize the search widget
+      var search = new Search({
+        view: view,
+        allPlaceholder: "Search Parcel Number",
+        includeDefaultSources: false,
+        sources: [{
+          layer: clarkLayer,
+          searchFields: ["Parcel_Num"],
+          displayField: "Parcel_Num",
+          exactMatch: false,
+          outFields: ["*"],
+          name: "Clark County Parcels",
+          placeholder: "Search Parcel Number"
+        }]
+      });
+
+      view.ui.add(search, {
+        position: "top-left",
+        index: 0  
+      });        
+
+      // Initialize the basemap gallery widget
+      var basemapGallery = new BasemapGallery({
+        view: view
+      });
+
+      // Create an expandable widget for the basemap gallery
+      var expandBasemapGallery = new Expand({
+        view: view,
+        content: basemapGallery
+      });
+
+      // Add the basemap gallery widget to the top left
+      view.ui.add(expandBasemapGallery, "top-left");
+
+      // Define the extent for Clark County
+      var clarkCountyExtent = new Extent({
+        xmin: -9787232.432561183,
+        ymin: 4767327.263576653,
+        xmax: -9772634.235656574,
+        ymax: 4784856.755276539,
+        spatialReference: { wkid: 3857 }
+      });
+
+      // Initialize the bookmarks widget
+      var bookmarksWidget = new Bookmarks({
+        view: view,
+        bookmarks: [
+          {
+            name: "Clark County",
+            viewpoint: {
+              targetGeometry: clarkCountyExtent
+            }
+          }
+        ]
+      });
+
+      // Add the bookmarks widget to the top right
+      view.ui.add(bookmarksWidget, {
+        position: "top-right"
+      });
+
+      // Initialize the legend widget
+      var legend = new Legend({
+        view: view,
+        layerInfos: [{
+          layer: clarkLayer,
+          title: "Clark County Parcels by Status"
+        }]
+      });
+
+      // Add the legend widget to the bottom left
+      view.ui.add(legend, "bottom-left");
+
+    });
+  </script>
+</body>
+</html>
