@@ -50,8 +50,23 @@
         outFields: ["*"],
 		popupTemplate: {
     title: "Parcel Information",
-    content: "{Popup_Info}"
-  },
+    content: `
+        Parcel ID: {parcel_id}<br>
+        Landowner: {owner}<br>
+        Status: {STATUS}<br>
+        Street Address: {Street_Address}<br>
+        City: {muni_name}<br>
+        State: {state_abbr}<br>
+        Zip Code: {zip_code}<br>
+        Mailing Address: {Mailing_Address}<br>
+        Mailing City: {M_PlaceNm}<br>
+        Mailing State: {M_StateNm}<br>
+        Mailing Zip Code: {M_ZipCode}<br>
+        Agent: {Agent}<br>
+        Email: {Email}<br>
+        Phone Number: {Phone Number}
+    `
+},
 	  renderer: {
   type: "unique-value",
   field: "STATUS",
